@@ -14,12 +14,13 @@ namespace CarsonTowerOfHanoi
             int numDiscs = 0;
             int from = 0;
             int to = 0;
-            bool validInput = false;
-            bool endGame = false;
-            bool playAgain = true;
+            bool validInput;
+            bool endGame;
+            bool playAgain;
 
             do
             {
+                Clear();
                 do
                 {
                     try
@@ -44,7 +45,8 @@ namespace CarsonTowerOfHanoi
                 {
                     do
                     {
-                        validInput = false; // resets validInput
+                        validInput = false;
+                        endGame = false;// resets validInput
 
                         try // Gets 'from' pole
                         {
@@ -83,52 +85,24 @@ namespace CarsonTowerOfHanoi
                         // Ends game if game is complete
                         myTowers.Move(from, to);
                         Update(myTowers);
-                        myTowers.IsComplete = GameComplete(myTowers, numDiscs);
+                        myTowers.IsComplete = GameComplete(myTowers, numDiscs, from, to);
                         if (myTowers.IsComplete) endGame = true;
                     }
 
                 } while (!endGame);
 
-                PlayAgain();
+                playAgain = PlayAgain();
 
             } while (playAgain);
 
         } // end Main
-
-//        if (myTowers.NumberOfMoves > 0)
-//                        {
-//                            if (!GameComplete(myTowers, numDiscs)) WriteLine($"Move {myTowers.NumberOfMoves} complete. Successfully moved disc from tower {from} to tower {to}");
-//                            else if (GameComplete(myTowers, numDiscs))
-//                            {
-//                                WriteLine($"Congratulations, you completed the puzzle in {myTowers.NumberOfMoves} moves.");
-//                                if (myTowers.MinimumPossibleMoves == myTowers.NumberOfMoves)
-//                                {
-//                                    WriteLine($"\nThat's the fewest number of moves possible. I ANOINT YOU THE RULER OF HANOI!");
-//    }
-//                                else
-//                                {
-//                                    WriteLine($"\nYou complete the puzzle in {myTowers.NumberOfMoves} moves but the fewest possible is {myTowers.MinimumPossibleMoves}");
-//    WriteLine("Let's give it another shot. What do you say? ('Y' for yes! or 'x' to quit): ");
-//}
-//string playAgainInput = ReadKey().KeyChar.ToString().ToUpper();
-//switch (playAgainInput)
-//{
-//    case "Y":
-//        playAgain = true;
-//        break;
-//    default:
-//        playAgain = false;
-//        break;
-//}
-//                            }
-//                        }
 
         public static int MoveFrom(/*bool displayCtrlY = true*/)
         {
             string validFromInput;
             int validFromInt;
 
-            Write("Enter 'from' tower number or 'x' to quit: ");
+            Write("\nEnter 'from' tower number or 'x' to quit: ");
             validFromInput = ReadKey().KeyChar.ToString().ToUpper();
             if (validFromInput == "X")
             {
@@ -178,22 +152,29 @@ namespace CarsonTowerOfHanoi
 
         public static bool PlayAgain()
         {
-
-            // will need to reset towers object
-            return true;
+            WriteLine("\nWould you like to play again?('y' for yes! or any key to quit): ");
+            string playAgainInput = ReadKey().KeyChar.ToString().ToUpper();
+            if (playAgainInput == "Y") return true;
+            else return false;
         }
 
-        public static bool GameComplete(Towers myTowers, int numberOfDiscs)
+        public static bool GameComplete(Towers myTowers, int numberOfDiscs, int from, int to)
         {
             if (myTowers.poleThree.Count == numberOfDiscs)
             {
                 myTowers.IsComplete = true;
-                // dialog
+                WriteLine($"\nCongratulations, you completed the puzzle in {myTowers.NumberOfMoves} moves.");
+                if (myTowers.MinimumPossibleMoves == myTowers.NumberOfMoves) WriteLine($"\nThat's the fewest number of moves possible. I ANOINT YOU THE RULER OF HANOI!");
+                else
+                {
+                    WriteLine($"\nYou completed the puzzle in {myTowers.NumberOfMoves} moves but the fewest possible is {myTowers.MinimumPossibleMoves}");
+                    WriteLine("\nLet's give it another shot. What do you say?");
+                }
                 return true;
             }
             else
             {
-                // dialog
+                WriteLine($"\nMove {myTowers.NumberOfMoves} complete. Successfully moved disc from tower {from} to tower {to}.");
                 myTowers.IsComplete = false;
                 return false;
             }
