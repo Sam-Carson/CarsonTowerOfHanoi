@@ -7,25 +7,28 @@ using static System.Console;
 
 namespace CarsonTowerOfHanoi
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            int numDiscs = 0;
-            int from = 0;
-            int to = 0;
-            bool validInput;
-            bool endGame;
             bool playAgain;
-
             do
             {
+                int numDiscs = 0;
+                int from = 0;
+                int to = 0;
+                bool validInput;
+                bool endGame;
+
+                Queue<MoveRecord> recordedMoves = new Queue<MoveRecord>();
+
                 Clear();
                 do
                 {
                     try
                     {
                         numDiscs = GetGameDiscs();
+                        Clear();
                     }
                     catch (InvalidHeightException e)
                     {
@@ -39,6 +42,7 @@ namespace CarsonTowerOfHanoi
                 // Converts myTowers to array
                 Towers myTowers = new Towers(numDiscs);
                 myTowers.MinimumPossibleMoves = MinimumMoves(numDiscs);
+                //myTowers.MinimumPossibleMoves = MinimumMoves(numDiscs);
                 Update(myTowers);
 
                 do
@@ -83,14 +87,17 @@ namespace CarsonTowerOfHanoi
                         // converts to array
                         // Checks if game is complete
                         // Ends game if game is complete
-                        myTowers.Move(from, to);
+                        MoveRecord recordedMove = myTowers.Move(from, to);
+                        recordedMoves.Enqueue(recordedMove);
                         Update(myTowers);
-                        myTowers.IsComplete = GameComplete(myTowers, numDiscs, from, to);
+                        GameComplete(myTowers, from, to);
                         if (myTowers.IsComplete) endGame = true;
                     }
 
                 } while (!endGame);
 
+                // list turns
+                DisplayMoves(recordedMoves);
                 playAgain = PlayAgain();
 
             } while (playAgain);
@@ -102,7 +109,7 @@ namespace CarsonTowerOfHanoi
             string validFromInput;
             int validFromInt;
 
-            Write("\nEnter 'from' tower number or 'x' to quit: ");
+            Write("\nEnter 'from' tower number, 'ctrl+z' or 'x' to quit: ");
             validFromInput = ReadKey().KeyChar.ToString().ToUpper();
             if (validFromInput == "X")
             {
@@ -110,11 +117,26 @@ namespace CarsonTowerOfHanoi
             }
             else
             {
+                //try
+                //{
+                //    ValidMoveFrom(validFromInput);
+                //}
+                //catch (InvalidMoveException e)
+                //{
+
+                //}
                 validFromInt = int.Parse(validFromInput);
                 if (validFromInt == 0 || validFromInt < 0 || validFromInt > 3) throw new InvalidMoveException("Invalid tower.");
                 else return validFromInt;
             }
         }
+
+        //public static int ValidMoveFrom(string fromInput)
+        //{
+        //    int input = int.Parse(fromInput);
+
+        //    return input;
+        //}
 
         public static int MoveTo()
         {
@@ -158,11 +180,10 @@ namespace CarsonTowerOfHanoi
             else return false;
         }
 
-        public static bool GameComplete(Towers myTowers, int numberOfDiscs, int from, int to)
+        public static void GameComplete(Towers myTowers, int from, int to)
         {
-            if (myTowers.poleThree.Count == numberOfDiscs)
+            if (myTowers.IsComplete)
             {
-                myTowers.IsComplete = true;
                 WriteLine($"\nCongratulations, you completed the puzzle in {myTowers.NumberOfMoves} moves.");
                 if (myTowers.MinimumPossibleMoves == myTowers.NumberOfMoves) WriteLine($"\nThat's the fewest number of moves possible. I ANOINT YOU THE RULER OF HANOI!");
                 else
@@ -170,13 +191,10 @@ namespace CarsonTowerOfHanoi
                     WriteLine($"\nYou completed the puzzle in {myTowers.NumberOfMoves} moves but the fewest possible is {myTowers.MinimumPossibleMoves}");
                     WriteLine("\nLet's give it another shot. What do you say?");
                 }
-                return true;
             }
             else
             {
                 WriteLine($"\nMove {myTowers.NumberOfMoves} complete. Successfully moved disc from tower {from} to tower {to}.");
-                myTowers.IsComplete = false;
-                return false;
             }
         }
 
@@ -184,6 +202,20 @@ namespace CarsonTowerOfHanoi
         {
             TowerUtilities.DisplayTowers(myTowers);
             myTowers.ToArray();
+        }
+
+        public static void DisplayMoves(Queue<MoveRecord> recordedMoves)
+        {
+            Write("\nWould you like to see a list of moves? ('y' for yes): ");
+            string recordedMovesInput = ReadKey().KeyChar.ToString().ToUpper();
+
+            if (recordedMovesInput == "Y")
+            {
+                foreach (MoveRecord item in recordedMoves)
+                {
+                    WriteLine($"\nMove {item.MoveNumber}: You moved disc {item.Disc} from tower {item.From} to tower {item.To}");
+                }
+            }
         }
     }
 }

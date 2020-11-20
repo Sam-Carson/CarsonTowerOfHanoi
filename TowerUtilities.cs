@@ -5,7 +5,7 @@ using System.Text;
 using static System.Console;
 namespace CarsonTowerOfHanoi
 {
-    class TowerUtilities
+    public static class TowerUtilities
     {
         const int NumberOfPoles = 3;
         const string TowerPole = "|";
