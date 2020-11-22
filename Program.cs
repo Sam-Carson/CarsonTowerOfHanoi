@@ -19,8 +19,6 @@ namespace CarsonTowerOfHanoi
                 int to = 0;
                 bool validInput;
                 bool endGame;
-                bool redoRequest = false;
-                bool undoRequest = false;
                 bool askDisplayCtrlZ = false;
                 bool askDisplayCtrlY = false;
 
@@ -132,9 +130,9 @@ namespace CarsonTowerOfHanoi
                             redoStack.Clear();
                             recordedMovesQ.Enqueue(recordedMove);
                         }
-                        
+
                         Update(myTowers);
-                        GameComplete(myTowers, from, to);
+                        GameComplete(myTowers, from, to, undoStack, redoStack);
                         if (myTowers.IsComplete) endGame = true;
                     }
 
@@ -222,7 +220,7 @@ namespace CarsonTowerOfHanoi
             else return false;
         }
 
-        public static void GameComplete(Towers pMyTowers, int pFrom, int pTo)
+        public static void GameComplete(Towers pMyTowers, int pFrom, int pTo, Stack<MoveRecord> pUndoStack, Stack<MoveRecord> pRedoStack)
         {
             if (pMyTowers.IsComplete)
             {
@@ -233,6 +231,16 @@ namespace CarsonTowerOfHanoi
                     WriteLine($"\nYou completed the puzzle in {pMyTowers.NumberOfMoves} moves but the fewest possible is {pMyTowers.MinimumPossibleMoves}");
                     WriteLine("\nLet's give it another shot. What do you say?");
                 }
+            }
+            else if (pFrom == -2) // redo
+            {
+                MoveRecord redoMoveDetails = pUndoStack.Peek();
+                WriteLine($"\nMove {pMyTowers.NumberOfMoves} complete by redo of move {pMyTowers.NumberOfMoves - 1}. Disc {redoMoveDetails.Disc} restored to tower {redoMoveDetails.To} from tower {redoMoveDetails.From}.");
+            }
+            else if (pFrom == -3) // undo
+            {
+                MoveRecord undoMoveDetails = pRedoStack.Peek();
+                WriteLine($"\nMove {pMyTowers.NumberOfMoves} complete by undo of move {undoMoveDetails.MoveNumber}. Disc {undoMoveDetails.Disc} restored to tower {undoMoveDetails.From} from tower {undoMoveDetails.To}.");
             }
             else
             {
