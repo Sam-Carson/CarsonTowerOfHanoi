@@ -1,0 +1,81 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ClassLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace UnitTests
+{
+    [TestClass]
+    public class Towers_Should
+    {
+        [TestMethod]
+        public void ConstructTower_WhenNumberOfDisksIsDeclared()
+        {
+            //arrange
+            int numberOfDiscs = 5;
+            //act
+            Towers testTower = new Towers(numberOfDiscs);
+            //assert
+            Assert.AreEqual(testTower.NumberOfDiscs, numberOfDiscs);
+        }
+
+        [TestMethod]
+        public void ConstructTowerWithAllDisksOnLeftPole_WhenNumberOfDisksIsDeclared()
+        {
+            //arrange
+            //int numberOfDiscs = 5;
+            //Stack<int> poleOne = new Stack<int>();
+            //Stack<int> poleTwo = new Stack<int>();
+            //Stack<int> poleThree = new Stack<int>();
+            //Stack<int>[] poleArray = new Stack<int>[3];
+
+            ////act
+            //Towers testTower = new Towers(numberOfDiscs);
+            //Stack<int> testPole = poleOne;
+            
+            ////assert
+            //Assert.AreEqual(testPole.Count() , numberOfDiscs);
+        }
+    }
+
+    [TestClass]
+    public class Move_Should
+    {
+        [TestMethod]
+        public void MoveSmallestDiskToTopOfLargerDisk_WhenUserMovesDiskFromPole()
+        {
+            //arrange
+            //act
+            //assert
+        }
+
+        [TestMethod]
+        public void CatchExecption_WhenUserMovesDiskFromEmptyPole()
+        {
+            //arrange
+            //act
+            //assert
+        }
+    }
+
+    [TestClass]
+    public class ToArray_Should
+    {
+        [TestMethod]
+        public void ReturnJaggedArray_WhenCalled()
+        {
+            //arrange
+            //act
+            //assert
+        }
+
+        [TestMethod]
+        public void CreateJaggedArrayWithDimensionTwoBeingInts_WhenCalled()
+        {
+            //arrange
+            //act
+            //assert
+        }
+    }
+}
