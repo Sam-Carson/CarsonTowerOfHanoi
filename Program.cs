@@ -47,6 +47,7 @@ namespace CarsonTowerOfHanoi
                 Towers myTowers = new Towers(numDiscs);
                 myTowers.MinimumPossibleMoves = MinimumMoves(numDiscs);
                 Update(myTowers);
+                HowToPlay();
 
                 do
                 {
@@ -244,7 +245,7 @@ namespace CarsonTowerOfHanoi
             }
             else
             {
-                WriteLine($"\nMove {pMyTowers.NumberOfMoves} complete. Successfully moved disc from tower {pFrom} to tower {pTo}.");
+                WriteLine($"\nMove {pMyTowers.NumberOfMoves} complete. Successfully moved disc {pUndoStack.Peek().Disc} from tower {pFrom} to tower {pTo}.");
             }
         }
 
@@ -285,6 +286,29 @@ namespace CarsonTowerOfHanoi
             pRecordedMovesQ.Enqueue(postRedoMove);
 
             return postRedoMove;
+        }
+
+        public static void HowToPlay()
+        {
+            string hTPInput;
+            bool validHTPInput;
+
+            WriteLine("Options: ");
+            WriteLine("- M - Solve the puzzle manually");
+            WriteLine("- A - Auto-solve");
+
+            do
+            {
+                Write("\nChoose an approach: ");
+                hTPInput = ReadKey().KeyChar.ToString().ToUpper();
+
+                if (hTPInput == "M" || hTPInput == "A") validHTPInput = true;
+                else
+                {
+                    WriteLine("\nNot a valid Input!");
+                    validHTPInput = false;
+                }
+            } while (!validHTPInput);
         }
     }
 }
