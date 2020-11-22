@@ -6,16 +6,16 @@ namespace ClassLibrary
 {
     public class Towers
     {
-        public int NumberOfDiscs { get; set; }
-        public int NumberOfMoves { get; set; }
-        public int MinimumPossibleMoves { get; set; } // 2^n -1
-        public bool IsComplete { get; set; }
+        public  int NumberOfDiscs { get; set; }
+        public  int NumberOfMoves { get; set; }
+        public  int MinimumPossibleMoves { get; set; }
+        public  bool IsComplete { get; set; }
 
-        private Stack<int> poleOne = new Stack<int>();
-        private Stack<int> poleTwo = new Stack<int>();
-        private Stack<int> poleThree = new Stack<int>();
-        private Stack<Stack<int>>[] poleArray = new Stack<Stack<int>>[] { new Stack<Stack<int>>(), new Stack<Stack<int>>(), new Stack<Stack<int>>() };
-  
+        Stack<int> poleOne = new Stack<int>();
+        Stack<int> poleTwo = new Stack<int>();
+        Stack<int> poleThree = new Stack<int>();
+        Stack<int>[] poleArray = new Stack<int>[3];
+
 
         public Towers(int numberOfDiscs)
         {
@@ -26,48 +26,46 @@ namespace ClassLibrary
                 poleOne.Push(i);
             }
             
-            poleArray[0].Push(poleOne);
-            poleArray[1].Push(poleTwo);
-            poleArray[2].Push(poleThree);
+            poleArray[0] = (poleOne);
+            poleArray[1] = (poleTwo);
+            poleArray[2] = (poleThree);
         }
 
 
-        public void Move(int from, int to)
+        public MoveRecord Move(int pFrom, int pTo)
         {
-            Stack<int> movedDisk;
+            int movedDisk;
 
-            //for (int i = numberOfTowers; i < numberOfTowers; i++)
-            //{
-            //    Stack<int> pole = poleArray[i].Pop();
-            //}
-
-
-            if (from < 1 || from > 3 || to < 1 || to > 3) // validates input for poles
+            if (pFrom < 1 || pFrom > 3 || pTo < 1 || pTo > 3) // validates input for poles
             {
-                WriteLine("Not a valid tower! Towers are from left to right (1, 2, 3)");
+                throw new InvalidMoveException("Invalid Tower Number.");
             }
-            else if (from == to) // prevents from choosing same pole to move from --> to
+            else if (pFrom == pTo) // prevents from choosing same pole to move from --> to
             {
-                WriteLine("Move Cancelled");
+                throw new InvalidMoveException("Move Cancelled");
             }
-            else if (poleArray[from - 1].Count == 0) // Checks if pull is empty
+            else if (poleArray[pFrom - 1].Count == 0) // Checks if pull is empty
             {
-                WriteLine($"Tower {from - 1} is empty");
+                throw new InvalidMoveException($"Tower {pFrom} is empty.");
             }
-            else if (Convert.ToInt32(poleArray[from - 1].Pop()) > Convert.ToInt32(poleArray[to - 1].Pop())) // compares 'from' disk to 'to' size
+            else if (!(poleArray[pTo - 1].Count == 0) && poleArray[pFrom - 1].Peek() > poleArray[pTo - 1].Peek())
             {
-                WriteLine($"Top disk of {from} is larger than the top disk on tower {to}.");
+                throw new InvalidMoveException($"Top disc of tower {pFrom} is larger than top disc on tower {pTo}.");
             }
             else
             {
-                movedDisk = poleArray[from - 1].Pop();
-                poleArray[to - 1].Push(movedDisk);
+                movedDisk = poleArray[pFrom - 1].Pop();
+                poleArray[pTo - 1].Push(movedDisk);
                 NumberOfMoves++;
+                MoveRecord recordedMove = new MoveRecord(NumberOfMoves, movedDisk, pFrom, pTo);
+
                 if (poleArray[2].Count == NumberOfDiscs)
                 {
+                    IsComplete = true;
                     WriteLine("Winner");
                     WriteLine($"Total number of moves {NumberOfMoves}.");
                 }
+                return recordedMove;
             }
         }
 
@@ -76,51 +74,11 @@ namespace ClassLibrary
         {
             int[][] jaggedArray = new int[3][];
 
-            // because poleArray is of type Stack<Stack<int>> you must convert the first stack to an array and then do the same thing again that stack.
-
-            for (int i = 0; i < poleArray.Length; i++)
-            {
-                Stack<int>[] s = poleArray[i].ToArray();
-                jaggedArray[i] = s[0].ToArray();
-            }
-
+            jaggedArray[0] = poleOne.ToArray();
+            jaggedArray[1] = poleTwo.ToArray();
+            jaggedArray[2] = poleThree.ToArray();
             return jaggedArray;
         }
-
-        public class InvalidHeightException : Exception
-        {
-            public InvalidHeightException()
-            {
-                
-            }
-
-            public InvalidHeightException(string message) : base(message)
-            {
-
-            }
-
-            public InvalidHeightException(string message, Exception inner) : base(message, inner)
-            {
-
-            }
-        }
-
-        public class InvalidMoveException : Exception
-        {
-            public InvalidMoveException()
-            {
-
-            }
-            public InvalidMoveException(string message) : base(message)
-            {
-
-            }
-            public InvalidMoveException(string message, Exception inner) : base(message, inner)
-            {
-
-            }
-        }
-
     }
 }
 
