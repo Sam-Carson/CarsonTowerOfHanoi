@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using ClassLibrary;
-using static ClassLibrary.Towers;
 using static System.Console;
 
 namespace CarsonTowerOfHanoi
@@ -19,6 +18,7 @@ namespace CarsonTowerOfHanoi
                 int to = 0;
                 bool validInput;
                 bool endGame;
+                bool playManually;
                 bool askDisplayCtrlZ = false;
                 bool askDisplayCtrlY = false;
 
@@ -42,102 +42,113 @@ namespace CarsonTowerOfHanoi
 
                 // Creates towers 
                 // sets MinimumPossibleMoves property
-                // Displays towers
-                // Converts myTowers to array
+                // Displays towers & converts myTowers to array
+                // Asks how to play the game
                 Towers myTowers = new Towers(numDiscs);
                 myTowers.MinimumPossibleMoves = MinimumMoves(numDiscs);
                 Update(myTowers);
-                HowToPlay();
+                playManually = HowToPlay();
 
-                do
+                if (!playManually) // Auto-solve play
+                {
+                    WriteLine("\nPress a key and watch closely!");
+                    ReadLine();
+                    AutoPlay(numDiscs,1, 3, 2, myTowers, recordedMovesQ);
+                    //recursion method
+                }
+                else // Manual play
                 {
                     do
                     {
-                        validInput = false;
-                        endGame = false;// resets validInput
-                        if (myTowers.NumberOfMoves > 0) askDisplayCtrlZ = true;
-                        if (redoStack.Count > 0)
-                        {
-                            askDisplayCtrlY = true;
-                        }
-
-                        try // Gets 'from' pole
-                        {
-                            from = MoveFrom(askDisplayCtrlZ, askDisplayCtrlY, undoStack, redoStack);
-                            if (from == -3 && undoStack.Count == 0)
-                            {
-                                WriteLine("\nCan't undo!");
-                                validInput = false;
-                            }
-                            else if (from == -2 && redoStack.Count == 0)
-                            {
-                                WriteLine("\nCan't redo!");
-                                validInput = false;
-                            }
-                            else validInput = true;
-                        }
-                        catch (InvalidMoveException e)
-                        {
-                            WriteLine(e.Message);
-                        }
-                    } while (validInput == false);
-
-                    if (from < 0)
-                    {
-                        switch (from)
-                        {
-                            case -1: // quit
-                                endGame = true;
-                                break;
-                            case -2: // redo
-                                MoveRecord postRedoMove = Redo(undoStack, redoStack, myTowers, recordedMovesQ);
-                                break;
-                            case -3: // undo
-                                MoveRecord postUndoMove = Undo(undoStack, redoStack, myTowers, recordedMovesQ);
-                                break;
-                        }
-                    }
-                    else
-                    {
                         do
                         {
-                            try // gets 'to' pole
+                            validInput = false;
+                            endGame = false;// resets validInput
+                            if (myTowers.NumberOfMoves > 0) askDisplayCtrlZ = true;
+                            if (redoStack.Count > 0)
                             {
-                                to = MoveTo();
-                                validInput = true;
+                                askDisplayCtrlY = true;
+                            }
+
+                            try // Gets 'from' pole
+                            {
+                                from = MoveFrom(askDisplayCtrlZ, askDisplayCtrlY, undoStack, redoStack);
+                                if (from == -3 && undoStack.Count == 0)
+                                {
+                                    WriteLine("\nCan't undo!");
+                                    validInput = false;
+                                }
+                                else if (from == -2 && redoStack.Count == 0)
+                                {
+                                    WriteLine("\nCan't redo!");
+                                    validInput = false;
+                                }
+                                else validInput = true;
                             }
                             catch (InvalidMoveException e)
                             {
                                 WriteLine(e.Message);
-                                validInput = false;
                             }
                         } while (validInput == false);
-                    }
-                    if (!endGame) // if the user did not quit
-                    {
-                        // Makes move an returns recorded move
-                        // Pushes recordedMove to undoStack
-                        // Adds recordedMove to recordedMovesQ
-                        // Clears redoStack becuase user made a regular move
-                        // Displays towers
-                        // converts to array
-                        // Checks if game is complete
-                        // Ends game if game is complete
 
-                        if (from > 0) // if the user made a regular move
+                        if (from < 0)
                         {
-                            MoveRecord recordedMove = myTowers.Move(from, to);
-                            undoStack.Push(recordedMove);
-                            redoStack.Clear();
-                            recordedMovesQ.Enqueue(recordedMove);
+                            switch (from)
+                            {
+                                case -1: // quit
+                                    endGame = true;
+                                    break;
+                                case -2: // redo
+                                    Redo(undoStack, redoStack, myTowers, recordedMovesQ);
+                                    break;
+                                case -3: // undo
+                                    Undo(undoStack, redoStack, myTowers, recordedMovesQ);
+                                    break;
+                            }
                         }
+                        else
+                        {
+                            do
+                            {
+                                try // gets 'to' pole
+                                {
+                                    to = MoveTo();
+                                    validInput = true;
+                                }
+                                catch (InvalidMoveException e)
+                                {
+                                    WriteLine(e.Message);
+                                    validInput = false;
+                                }
+                            } while (validInput == false);
+                        }
+                        if (!endGame) // if the user did not quit
+                        {
+                            // Makes move an returns recorded move
+                            // Pushes recordedMove to undoStack
+                            // Adds recordedMove to recordedMovesQ
+                            // Clears redoStack becuase user made a regular move
+                            // Displays towers
+                            // converts to array
+                            // Checks if game is complete
+                            // Ends game if game is complete
 
-                        Update(myTowers);
-                        GameComplete(myTowers, from, to, undoStack, redoStack);
-                        if (myTowers.IsComplete) endGame = true;
-                    }
+                            if (from > 0) // if the user made a regular move
+                            {
+                                MoveRecord recordedMove = myTowers.Move(from, to);
+                                undoStack.Push(recordedMove);
+                                redoStack.Clear();
+                                recordedMovesQ.Enqueue(recordedMove);
+                            }
 
-                } while (!endGame);
+                            Update(myTowers);
+                            GameComplete(myTowers, from, to, undoStack, redoStack);
+                            if (myTowers.IsComplete) endGame = true;
+                        }
+                    } while (!endGame);
+                }
+
+                
 
                 // list turns
                 DisplayMoves(recordedMovesQ);
@@ -200,7 +211,10 @@ namespace CarsonTowerOfHanoi
             int.TryParse(ReadLine(), out validInt);
             if (validInt == 0 || validInt < 0 || validInt > 9)
             {
-                throw new InvalidHeightException();
+                WriteLine("Number of discs defaulting to 5. Press any key to continue.");
+                ReadLine();
+                return 5;
+                //throw new InvalidHeightException();
             }
             return validInt;
         }
@@ -288,7 +302,7 @@ namespace CarsonTowerOfHanoi
             return postRedoMove;
         }
 
-        public static void HowToPlay()
+        public static bool HowToPlay()
         {
             string hTPInput;
             bool validHTPInput;
@@ -302,13 +316,36 @@ namespace CarsonTowerOfHanoi
                 Write("\nChoose an approach: ");
                 hTPInput = ReadKey().KeyChar.ToString().ToUpper();
 
-                if (hTPInput == "M" || hTPInput == "A") validHTPInput = true;
-                else
+                switch (hTPInput)
                 {
-                    WriteLine("\nNot a valid Input!");
-                    validHTPInput = false;
+                    case "M":
+                        return true;
+                    case "A":
+                        return false;
+                    default:
+                        validHTPInput = false;
+                        break;
                 }
             } while (!validHTPInput);
+
+            return false; // required for all code paths to return a value... 
+        }
+
+        public static void AutoPlay(int n, int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
+        {
+            // add moves to queue
+            // display game board and message after each move
+            if (n > 0)
+            {
+                AutoPlay(n - 1, source, aux, destination, pMyTowers, moveQueue);
+                Thread.Sleep(250);
+                MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                moveQueue.Enqueue(recordedMove);
+                Update(pMyTowers);
+                WriteLine($"Move {moveQueue.Count} complete. Successfully moved disc {recordedMove.Disc} from tower {recordedMove.From} to tower {recordedMove.To}.");
+                AutoPlay(n - 1, aux, destination, source, pMyTowers, moveQueue);
+            }
+
         }
     }
 }
