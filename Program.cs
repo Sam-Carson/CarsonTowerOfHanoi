@@ -16,9 +16,9 @@ namespace CarsonTowerOfHanoi
                 int numDiscs = 0;
                 int from = 0;
                 int to = 0;
+                int howToPlay;
                 bool validInput;
                 bool endGame;
-                bool playManually;
                 bool askDisplayCtrlZ = false;
                 bool askDisplayCtrlY = false;
 
@@ -47,16 +47,29 @@ namespace CarsonTowerOfHanoi
                 Towers myTowers = new Towers(numDiscs);
                 myTowers.MinimumPossibleMoves = MinimumMoves(numDiscs);
                 Update(myTowers);
-                playManually = HowToPlay();
+                howToPlay = HowToPlay();
 
-                if (!playManually) // Auto-solve play
+                if (howToPlay == 2) // Auto-solve play
                 {
                     WriteLine("\nPress a key and watch closely!");
                     ReadLine();
                     AutoPlay(numDiscs,1, 3, 2, myTowers, recordedMovesQ);
-                    //recursion method
                 }
-                else // Manual play
+                else if (howToPlay == 3) //Step-by-step
+                {
+                    WriteLine("\nPress a key to see the first move!");
+                    ReadLine();
+                    if (myTowers.NumberOfDiscs % 2 == 0)
+                    {
+                        StepByStep(numDiscs, 1, 2, 3, myTowers, recordedMovesQ);
+                    }
+                    else
+                    {
+                        StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
+                    }
+                    //StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
+                }
+                else if (howToPlay == 1)// Manual play
                 {
                     do
                     {
@@ -302,7 +315,7 @@ namespace CarsonTowerOfHanoi
             return postRedoMove;
         }
 
-        public static bool HowToPlay()
+        public static int HowToPlay()
         {
             string hTPInput;
             bool validHTPInput;
@@ -310,6 +323,7 @@ namespace CarsonTowerOfHanoi
             WriteLine("Options: ");
             WriteLine("- M - Solve the puzzle manually");
             WriteLine("- A - Auto-solve");
+            WriteLine("- S - Auto-solve step by step");
 
             do
             {
@@ -319,22 +333,21 @@ namespace CarsonTowerOfHanoi
                 switch (hTPInput)
                 {
                     case "M":
-                        return true;
+                        return 1;
                     case "A":
-                        return false;
+                        return 2;
+                    case "S":
+                        return 3;
                     default:
                         validHTPInput = false;
                         break;
                 }
             } while (!validHTPInput);
-
-            return false; // required for all code paths to return a value... 
+            return 0; // all code paths must return a value....
         }
 
         public static void AutoPlay(int n, int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
         {
-            // add moves to queue
-            // display game board and message after each move
             if (n > 0)
             {
                 AutoPlay(n - 1, source, aux, destination, pMyTowers, moveQueue);
@@ -345,7 +358,61 @@ namespace CarsonTowerOfHanoi
                 WriteLine($"Move {moveQueue.Count} complete. Successfully moved disc {recordedMove.Disc} from tower {recordedMove.From} to tower {recordedMove.To}.");
                 AutoPlay(n - 1, aux, destination, source, pMyTowers, moveQueue);
             }
+        }
 
+        public static void StepByStep(int n, int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
+        {
+            string exitSTS = null;
+            //bool evenNumDiscs;
+            //if (pMyTowers.NumberOfDiscs % 2 == 0) evenNumDiscs = true;
+            //else evenNumDiscs = false;
+            do
+            {
+                for (int i = 1; i < pMyTowers.MinimumPossibleMoves; i++)
+                {
+                    if (i%3 == 1)
+                    {
+                        MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                        if (exitSTS == "X") break;
+
+                        //if (evenNumDiscs)
+                        //{
+                        //    MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                        //    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                        //    if (exitSTS == "X") break;
+                        //}
+                        //else
+                        //{
+                        //    MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                        //    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                        //    if (exitSTS == "X") break;
+                    }
+                    else if (i%3 == 2)
+                    {
+                        MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                        if (exitSTS == "X") break;
+                    }
+                    else if (i%3 == 0)
+                    {
+                        MoveRecord recordedMove = pMyTowers.Move(destination, aux);
+                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                        if (exitSTS == "X") break;
+                    }
+                }
+                //WriteLine("Press any key to see the next move or 'X' to exit: ");
+                //exitSTS = ReadKey().KeyChar.ToString().ToUpper();
+            } while (exitSTS != "X");
+        }
+
+        public static string SBSUpdate(MoveRecord pRecordedMove, Queue<MoveRecord> moveQueue, Towers pMyTowers)
+        {
+            string exitSTS;
+            moveQueue.Enqueue(pRecordedMove);
+            Update(pMyTowers);
+            WriteLine("Press any key to see the next move or 'X' to exit: ");
+            return exitSTS = ReadKey().KeyChar.ToString().ToUpper();
         }
     }
 }
