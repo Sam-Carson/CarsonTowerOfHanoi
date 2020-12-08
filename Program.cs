@@ -59,17 +59,7 @@ namespace CarsonTowerOfHanoi
                 {
                     WriteLine("\nPress a key to see the first move!");
                     ReadLine();
-                    StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
-
-                    //if (myTowers.NumberOfDiscs % 2 == 0)
-                    //{
-                    //    StepByStep(numDiscs, 1, 2, 3, myTowers, recordedMovesQ);
-                    //}
-                    //else
-                    //{
-                    //    StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
-                    //}
-                    //StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
+                    StepByStep(1, 3, 2, myTowers, recordedMovesQ);
                 }
                 else if (howToPlay == 1)// Manual play
                 {
@@ -162,9 +152,6 @@ namespace CarsonTowerOfHanoi
                         }
                     } while (!endGame);
                 }
-
-                
-
                 // list turns
                 DisplayMoves(recordedMovesQ);
                 playAgain = PlayAgain();
@@ -250,6 +237,7 @@ namespace CarsonTowerOfHanoi
             else return false;
         }
 
+        
         public static void GameComplete(Towers pMyTowers, int pFrom, int pTo, Stack<MoveRecord> pUndoStack, Stack<MoveRecord> pRedoStack)
         {
             if (pMyTowers.IsComplete)
@@ -363,7 +351,7 @@ namespace CarsonTowerOfHanoi
             }
         }
 
-        public static void StepByStep(int n, int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
+        public static void StepByStep(int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
         {
             string exitSTS = null;
             bool evenNumDiscs;
@@ -586,12 +574,19 @@ namespace CarsonTowerOfHanoi
         {
             moveQueue.Enqueue(pRecordedMove);
             Update(pMyTowers);
+            IterativeMoveMessage(pRecordedMove);
             if (pMyTowers.IsComplete)
             {
+                WriteLine($"\nStep-through completed. Number of moves: {pRecordedMove.MoveNumber}");
                 return "X";
             }
-            WriteLine("Press any key to see the next move or 'X' to exit: ");
+            WriteLine("\nPress any key to see the next move or 'X' to exit: ");
             return ReadKey().KeyChar.ToString().ToUpper();
+        }
+
+        public static void IterativeMoveMessage(MoveRecord pRecordedMove)
+        {
+            WriteLine($"Move {pRecordedMove.MoveNumber} complete. Successfully moved disc from pole {pRecordedMove.From} to pole {pRecordedMove.To}.");
         }
     }
 }
