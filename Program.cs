@@ -59,14 +59,16 @@ namespace CarsonTowerOfHanoi
                 {
                     WriteLine("\nPress a key to see the first move!");
                     ReadLine();
-                    if (myTowers.NumberOfDiscs % 2 == 0)
-                    {
-                        StepByStep(numDiscs, 1, 2, 3, myTowers, recordedMovesQ);
-                    }
-                    else
-                    {
-                        StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
-                    }
+                    StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
+
+                    //if (myTowers.NumberOfDiscs % 2 == 0)
+                    //{
+                    //    StepByStep(numDiscs, 1, 2, 3, myTowers, recordedMovesQ);
+                    //}
+                    //else
+                    //{
+                    //    StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
+                    //}
                     //StepByStep(numDiscs, 1, 3, 2, myTowers, recordedMovesQ);
                 }
                 else if (howToPlay == 1)// Manual play
@@ -286,12 +288,13 @@ namespace CarsonTowerOfHanoi
         {
             Write("\nWould you like to see a list of moves? ('y' for yes): ");
             string recordedMovesInput = ReadKey().KeyChar.ToString().ToUpper();
+            WriteLine();
 
             if (recordedMovesInput == "Y")
             {
                 foreach (MoveRecord item in pRecordedMoves)
                 {
-                    WriteLine($"\nMove {item.MoveNumber}: You moved disc {item.Disc} from tower {item.From} to tower {item.To}");
+                    WriteLine($"\t{item.MoveNumber}: You moved disc {item.Disc} from tower {item.From} to tower {item.To}");
                 }
             }
         }
@@ -363,56 +366,232 @@ namespace CarsonTowerOfHanoi
         public static void StepByStep(int n, int source, int destination, int aux, Towers pMyTowers, Queue<MoveRecord> moveQueue)
         {
             string exitSTS = null;
-            //bool evenNumDiscs;
-            //if (pMyTowers.NumberOfDiscs % 2 == 0) evenNumDiscs = true;
-            //else evenNumDiscs = false;
+            bool evenNumDiscs;
+            bool exitIteration = false;
+            if (pMyTowers.NumberOfDiscs % 2 == 0) evenNumDiscs = true;
+            else evenNumDiscs = false;
+
             do
             {
-                for (int i = 1; i < pMyTowers.MinimumPossibleMoves; i++)
+                for (int i = 1; i < pMyTowers.MinimumPossibleMoves + 1; i++)
                 {
-                    if (i%3 == 1)
+                    if (evenNumDiscs)
                     {
-                        MoveRecord recordedMove = pMyTowers.Move(source, destination);
-                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
-                        if (exitSTS == "X") break;
+                        if (i % 3 == 1) //source aux
+                        {
+                            if (pMyTowers.NumberOfMoves == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleTwo.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleOne.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(aux, source);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleTwo.Count != 0 && pMyTowers.poleOne.Count != 0)
+                            {
+                                if (pMyTowers.poleOne.Peek() > pMyTowers.poleTwo.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(aux, source);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
+                        else if (i % 3 == 2) // source destination
+                        {
+                            if (pMyTowers.poleOne.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(destination, source);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleThree.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleOne.Count != 0 && pMyTowers.poleThree.Count != 0)
+                            {
+                                if (pMyTowers.poleOne.Peek() > pMyTowers.poleThree.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(destination, source);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
+                        else if (i % 3 == 0) //aux destination
+                        {
+                            if (pMyTowers.poleTwo.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(destination, aux);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleThree.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(aux, destination);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleTwo.Count != 0 && pMyTowers.poleThree.Count != 0)
+                            {
+                                if (pMyTowers.poleTwo.Peek() > pMyTowers.poleThree.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(destination, aux);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(aux, destination);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
 
-                        //if (evenNumDiscs)
-                        //{
-                        //    MoveRecord recordedMove = pMyTowers.Move(source, aux);
-                        //    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
-                        //    if (exitSTS == "X") break;
-                        //}
-                        //else
-                        //{
-                        //    MoveRecord recordedMove = pMyTowers.Move(source, destination);
-                        //    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
-                        //    if (exitSTS == "X") break;
-                    }
-                    else if (i%3 == 2)
-                    {
-                        MoveRecord recordedMove = pMyTowers.Move(source, aux);
-                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
-                        if (exitSTS == "X") break;
-                    }
-                    else if (i%3 == 0)
-                    {
-                        MoveRecord recordedMove = pMyTowers.Move(destination, aux);
-                        exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
-                        if (exitSTS == "X") break;
+                        if (i % 3 == 1) //source destination
+                        {
+                            if (pMyTowers.NumberOfMoves == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleThree.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleOne.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(destination, source);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleThree.Count != 0 && pMyTowers.poleOne.Count != 0)
+                            {
+                                if (pMyTowers.poleOne.Peek() > pMyTowers.poleThree.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(destination, source);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(source, destination);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
+                        else if (i % 3 == 2) // source aux
+                        {
+                            if (pMyTowers.poleOne.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(aux, source);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleTwo.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleOne.Count != 0 && pMyTowers.poleTwo.Count != 0)
+                            {
+                                if (pMyTowers.poleOne.Peek() > pMyTowers.poleTwo.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(aux, source);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(source, aux);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
+                        else if (i % 3 == 0) //aux destination
+                        {
+                            if (pMyTowers.poleTwo.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(destination, aux);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleThree.Count == 0)
+                            {
+                                MoveRecord recordedMove = pMyTowers.Move(aux, destination);
+                                exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                            }
+                            else if (pMyTowers.poleTwo.Count != 0 && pMyTowers.poleThree.Count != 0)
+                            {
+                                if (pMyTowers.poleTwo.Peek() > pMyTowers.poleThree.Peek())
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(destination, aux);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                                else
+                                {
+                                    MoveRecord recordedMove = pMyTowers.Move(aux, destination);
+                                    exitSTS = SBSUpdate(recordedMove, moveQueue, pMyTowers);
+                                }
+                            }
+                            if (exitSTS == "X" || pMyTowers.IsComplete)
+                            {
+                                exitIteration = true;
+                                break;
+                            }
+                        }
                     }
                 }
-                //WriteLine("Press any key to see the next move or 'X' to exit: ");
-                //exitSTS = ReadKey().KeyChar.ToString().ToUpper();
-            } while (exitSTS != "X");
+            } while (!exitIteration);
         }
 
         public static string SBSUpdate(MoveRecord pRecordedMove, Queue<MoveRecord> moveQueue, Towers pMyTowers)
         {
-            string exitSTS;
             moveQueue.Enqueue(pRecordedMove);
             Update(pMyTowers);
+            if (pMyTowers.IsComplete)
+            {
+                return "X";
+            }
             WriteLine("Press any key to see the next move or 'X' to exit: ");
-            return exitSTS = ReadKey().KeyChar.ToString().ToUpper();
+            return ReadKey().KeyChar.ToString().ToUpper();
         }
     }
 }

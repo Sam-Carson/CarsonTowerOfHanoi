@@ -3,14 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarsonTowerOfHanoi", "CarsonTowerOfHanoi.csproj", "{5436A9BE-9882-4F92-B0A2-A98C6A4E2CFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CarsonTowerOfHanoi", "CarsonTowerOfHanoi.csproj", "{5436A9BE-9882-4F92-B0A2-A98C6A4E2CFC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DE27105C-CA66-44A1-B2CF-B48E00E92C85} = {DE27105C-CA66-44A1-B2CF-B48E00E92C85}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary", "..\ClassLibrary\ClassLibrary.csproj", "{DE27105C-CA66-44A1-B2CF-B48E00E92C85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassLibrary", "..\ClassLibrary\ClassLibrary.csproj", "{DE27105C-CA66-44A1-B2CF-B48E00E92C85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "..\UnitTests\UnitTests.csproj", "{77F1C142-4DCE-4175-9659-30A10D85E7E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "..\UnitTests\UnitTests.csproj", "{77F1C142-4DCE-4175-9659-30A10D85E7E2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DE27105C-CA66-44A1-B2CF-B48E00E92C85} = {DE27105C-CA66-44A1-B2CF-B48E00E92C85}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
